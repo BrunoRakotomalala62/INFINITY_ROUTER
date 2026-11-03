@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # InfinityRouter API REST — 3 Routes
 
 Wrapper REST autour de **InfinityRouter** (`https://infinityrouter.dev/v1`) avec ta clé `RP490qj...`.
@@ -122,3 +123,6 @@ PORT=3000 node server.js
 
 ## 🎨 Frontend de test
 Ouvre `http://localhost:3000` — interface 3 routes avec aperçu SVG + téléchargement.
+=======
+# INFINITY_ROUTER
+>>>>>>> 3c7500cce2e56c2c3281143a6b1614cc0e0189d8
