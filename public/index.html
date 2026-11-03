@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfinityRouter API REST - 3 Routes</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
+body{font-family:Inter,sans-serif}
+.mono{font-family:JetBrains Mono,monospace}
+</style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800">
+<header class="bg-white border-b sticky top-0 z-10">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="font-extrabold text-lg">InfinityRouter <span class="text-indigo-600">API REST</span></h1>
+      <p class="text-xs text-slate-500">Wrapper 3 routes • Texte • Vision • Figure auto</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full font-semibold">● LIVE</span>
+      <a href="/api/health" target="_blank" class="text-xs bg-slate-900 text-white px-3 py-1.5 rounded-full">GET /api/health</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-8 grid lg:grid-cols-[1.1fr_1.4fr] gap-6">
+
+  <!-- LEFT: DOC -->
+  <div class="space-y-4">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border">
+      <h2 class="font-bold mb-3">📖 3 Routes disponibles</h2>
+      <div class="space-y-3 text-sm">
+        <div class="p-3 bg-slate-50 rounded-xl border">
+          <div class="font-mono text-xs font-bold text-indigo-600">POST /api/text</div>
+          <div class="text-slate-600 mt-1"><b>Texte seulement</b> — question → réponse texte</div>
+          <div class="mono text-[11px] bg-white p-2 rounded mt-2 border">{"message":"Explique Pythagore"}</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border">
+          <div class="font-mono text-xs font-bold text-violet-600">POST /api/vision</div>
+          <div class="text-slate-600 mt-1"><b>Texte + Image</b> — image base64 ou URL → analyse</div>
+          <div class="mono text-[11px] bg-white p-2 rounded mt-2 border">{"message":"Que vois-tu ?","image":"data:image/png;base64,..."}</div>
+        </div>
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+          <div class="font-mono text-xs font-bold text-amber-700">POST /api/auto ⭐</div>
+          <div class="text-slate-600 mt-1"><b>Auto + Figure</b> — détecte <code>fais une figure</code> et génère un <b>SVG</b></div>
+          <div class="text-[11px] text-amber-700 mt-1">Mots-clés: figure, triangle, schéma, dessine, cercle, ABC...</div>
+          <div class="mono text-[11px] bg-white p-2 rounded mt-2 border">{"message":"Fais une figure de deux triangles semblables ABC et RST"}</div>
+          <div class="text-[11px] text-slate-500 mt-2">→ Réponse contient <code>text</code> + <code>svg</code> + <code>figureDetected:true</code></div>
+        </div>
+      </div>
+      <div class="mt-4 p-3 bg-indigo-50 rounded-xl text-xs text-indigo-800">
+        <b>Clé API :</b> utilise celle par défaut ou passe <code>X-API-Key: ta_cle</code> dans le header.<br>
+        <b>Modèles :</b> deepseek-v4.1-flash-1017, minimax-m3.1-flash, claude-haiku-5-5 (recommandé pour SVG)
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border">
+      <h3 class="font-bold text-sm mb-2">🧪 Tester une route</h3>
+      <label class="text-xs font-semibold">Route</label>
+      <select id="route" class="w-full mt-1 mb-3 border rounded-lg px-3 py-2 text-sm">
+        <option value="text">POST /api/text — Texte seulement</option>
+        <option value="vision">POST /api/vision — Texte + Image</option>
+        <option value="auto" selected>POST /api/auto — Auto figure</option>
+      </select>
+      <label class="text-xs font-semibold">Message</label>
+      <textarea id="msg" rows="3" class="w-full mt-1 border rounded-lg px-3 py-2 text-sm">Fais une figure de deux triangles semblables ABC et RST avec les labels et le coefficient k=1.5</textarea>
+      <div id="imgBox" class="hidden">
+        <label class="text-xs font-semibold mt-3 block">Image (optionnel, data URL ou https URL)</label>
+        <input id="img" placeholder="data:image/png;base64,... ou https://..." class="w-full mt-1 border rounded-lg px-3 py-2 text-xs">
+        <input type="file" id="file" accept="image/*" class="mt-2 text-xs">
+      </div>
+      <label class="text-xs font-semibold mt-3 block">Modèle</label>
+      <select id="model" class="w-full mt-1 border rounded-lg px-3 py-2 text-sm">
+        <option value="">Auto (recommandé)</option>
+        <option value="deepseek-v4.1-flash-1017">deepseek-v4.1-flash-1017</option>
+        <option value="claude-haiku-5-5">claude-haiku-5-5 (meilleur SVG)</option>
+        <option value="minimax-m3.1-flash">minimax-m3.1-flash</option>
+      </select>
+      <button id="send" class="w-full mt-4 bg-slate-900 text-white rounded-xl py-3 font-bold hover:bg-black">Envoyer →</button>
+      <div id="status" class="text-xs text-slate-500 mt-2 text-center"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: RESULT -->
+  <div class="space-y-4">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold">Réponse</h3>
+        <span id="badge" class="text-xs px-2 py-1 rounded-full bg-slate-100 hidden"></span>
+      </div>
+      <div id="resultText" class="text-sm leading-relaxed bg-slate-50 rounded-xl p-4 min-h-[120px] whitespace-pre-wrap border">En attente d'un test... Essaie "Fais une figure de deux triangles semblables"</div>
+      <div id="resultSvgWrap" class="hidden mt-4">
+        <div class="text-xs font-bold mb-2">Figure SVG générée :</div>
+        <div id="resultSvg" class="bg-white border rounded-xl p-4 flex justify-center overflow-auto"></div>
+        <button id="dlSvg" class="mt-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-full">⬇ Télécharger SVG</button>
+      </div>
+      <details class="mt-4">
+        <summary class="text-xs font-semibold cursor-pointer">JSON brut</summary>
+        <pre id="json" class="mono text-[11px] bg-slate-900 text-slate-100 p-3 rounded-xl mt-2 overflow-auto max-h-64">-</pre>
+      </details>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm border">
+      <h4 class="font-bold text-sm mb-2">cURL exemples</h4>
+      <pre class="mono text-[11px] bg-slate-50 p-3 rounded-xl border overflow-auto"># Texte seul
+curl -X POST /api/text \
+ -H "Content-Type: application/json" \
+ -d '{"message":"Explique Thalès"}'
+
+# Vision
+curl -X POST /api/vision \
+ -d '{"message":"Décris","image":"data:image/png;base64,..."}'
+
+# Figure auto (détection)
+curl -X POST /api/auto \
+ -d '{"message":"Fais une figure de deux triangles semblables ABC et RST"}'
+# → { text, svg, figureDetected:true }</pre>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const routeEl = document.getElementById('route');
+const msgEl = document.getElementById('msg');
+const imgEl = document.getElementById('img');
+const imgBox = document.getElementById('imgBox');
+const modelEl = document.getElementById('model');
+const sendBtn = document.getElementById('send');
+const statusEl = document.getElementById('status');
+const resultText = document.getElementById('resultText');
+const resultSvgWrap = document.getElementById('resultSvgWrap');
+const resultSvg = document.getElementById('resultSvg');
+const badge = document.getElementById('badge');
+const jsonEl = document.getElementById('json');
+let lastSvg = null;
+
+routeEl.addEventListener('change', ()=>{
+  imgBox.classList.toggle('hidden', routeEl.value==='text');
+});
+
+document.getElementById('file').addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=> imgEl.value = r.result;
+  r.readAsDataURL(f);
+});
+
+document.getElementById('dlSvg').addEventListener('click', ()=>{
+  if(!lastSvg) return;
+  const blob = new Blob([lastSvg], {type:'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='figure.svg'; a.click();
+});
+
+sendBtn.addEventListener('click', async ()=>{
+  const route = routeEl.value;
+  const message = msgEl.value.trim();
+  if(!message) return alert('Message requis');
+  const body = { message };
+  if(modelEl.value) body.model = modelEl.value;
+  if(route!=='text' && imgEl.value) body.image = imgEl.value;
+
+  sendBtn.disabled=true; sendBtn.textContent='⏳ Envoi...'; statusEl.textContent='Appel InfinityRouter...';
+  resultSvgWrap.classList.add('hidden'); badge.classList.add('hidden');
+  try{
+    const res = await fetch(`/api/${route}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    const j = await res.json();
+    jsonEl.textContent = JSON.stringify(j,null,2);
+    if(!res.ok) throw new Error(j.error||'Erreur');
+    resultText.textContent = j.text || '(pas de texte)';
+    statusEl.textContent = `✓ ${j.model} • ${j.usage?.total_tokens||'?'} tokens`;
+    if(j.figureDetected!==undefined){
+      badge.textContent = j.figureDetected ? 'Figure détectée ✓' : 'Pas de figure';
+      badge.className = `text-xs px-2 py-1 rounded-full ${j.figureDetected?'bg-amber-100 text-amber-800':'bg-slate-100 text-slate-600'}`;
+      badge.classList.remove('hidden');
+    }
+    if(j.svg){
+      lastSvg=j.svg;
+      resultSvg.innerHTML=j.svg;
+      resultSvgWrap.classList.remove('hidden');
+    }
+  }catch(e){
+    resultText.textContent='❌ Erreur: '+e.message;
+    statusEl.textContent='Erreur';
+  }finally{
+    sendBtn.disabled=false; sendBtn.textContent='Envoyer →';
+  }
+});
+</script>
+</body>
+</html>
