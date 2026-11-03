@@ -125,11 +125,7 @@ app.post('/api/auto', async (req,res)=>{
     let messages;
     if (shouldMakeFigure) {
       // Prompt enrichi pour forcer la génération de figure SVG
-      const figureInstruction = `Tu es un assistant géométrie. L'utilisateur demande une figure. 
-Tu dois répondre en 2 parties:
-1) Une explication courte en français
-2) Puis un bloc code SVG complet \`\`\`svg ... \`\`\` représentant la figure demandée.
-Contraintes SVG: viewBox 0 0 600 320, fond blanc, couleurs douces, labels lisibles, traits nets.`;
+      const figureInstruction = `Tu es un assistant géométrie. Réponds en 2 parties: 1) explication courte (2 phrases) 2) SVG complet dans \`\`\`svg (viewBox 0 0 600 320, fond blanc). Sois concis.`;
       
       if (img) {
         messages = [
@@ -160,7 +156,7 @@ Contraintes SVG: viewBox 0 0 600 320, fond blanc, couleurs douces, labels lisibl
     const data = await callInfinity({
       model: chosenModel,
       messages,
-      max_tokens: max_tokens || 900,
+      max_tokens: max_tokens || 700,
       apiKey: req.headers['x-api-key']
     });
     const text = data.choices?.[0]?.message?.content || '';
